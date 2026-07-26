@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base
+from app.models import identity, question_bank, exam
 from app.api.v1 import auth, questions, exams
 
 # Create DB tables if missing
@@ -31,6 +32,6 @@ app.include_router(exams.router, prefix=f"{settings.API_V1_STR}/exams", tags=["E
 def root_status():
     return {
         "system": "AI Board Examination Operating System (AIBOS)",
-        "version": "1.0.0-milestone1",
+        "version": "1.0.0-milestone2",
         "status": "OPERATIONAL"
     }
