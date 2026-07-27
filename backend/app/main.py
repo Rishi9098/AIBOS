@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base
@@ -8,7 +8,8 @@ from app.models import (
     exam,
     rules_and_blueprints,
     evaluation,
-    multimodal
+    multimodal,
+    observability
 )
 from app.api.v1 import (
     auth,
@@ -16,7 +17,9 @@ from app.api.v1 import (
     exams,
     rules_and_blueprints as rules_bp_api,
     evaluation as evaluation_api,
-    multimodal as multimodal_api
+    multimodal as multimodal_api,
+    health,
+    ops
 )
 
 # Create DB tables if missing
@@ -44,11 +47,17 @@ app.include_router(exams.router, prefix=f"{settings.API_V1_STR}/exams", tags=["E
 app.include_router(rules_bp_api.router, prefix=f"{settings.API_V1_STR}/rules-blueprints", tags=["Rules Engine & Blueprint Engine"])
 app.include_router(evaluation_api.router, prefix=f"{settings.API_V1_STR}/evaluation", tags=["AI Evaluation Platform"])
 app.include_router(multimodal_api.router, prefix=f"{settings.API_V1_STR}/multimodal", tags=["Unified Multimodal Understanding Platform"])
+app.include_router(health.router, prefix="/health", tags=["Health & Diagnostics Probes"])
+app.include_router(ops.router, prefix=f"{settings.API_V1_STR}/ops", tags=["Operations & Government Pilot Readiness"])
+
+@app.get("/metrics")
+def prometheus_metrics():
+    return health.prometheus_metrics()
 
 @app.get("/")
 def root_status():
     return {
         "system": "AI Board Examination Operating System (AIBOS)",
-        "version": "1.0.0-milestone5",
+        "version": "1.0.0-milestone6",
         "status": "OPERATIONAL"
     }

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aibos-backend-deployment
+  labels:
+    app: aibos-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aibos-backend
+  template:
+    metadata:
+      labels:
+        app: aibos-backend
+    spec:
+      containers:
+      - name: aibos-backend
+        image: aibos/backend:1.0.0-milestone6
+        ports:
+        - containerPort: 8000
+        livenessProbe:
+          httpGet:
+            path: /health/liveness
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/readiness
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aibos-backend-service
+spec:
+  type: ClusterIP
+  selector:
+    app: aibos-backend
+  ports:
+  - port: 8000
+    targetPort: 8000

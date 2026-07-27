@@ -38,6 +38,12 @@ from app.models.multimodal import (
     MathematicalExpression,
     NormalizedRepresentation
 )
+from app.models.observability import (
+    AIModelRegistry,
+    AIBenchmarkResult,
+    FeatureFlag,
+    PilotSchoolOnboarding
+)
 
 __all__ = [
     "User",
@@ -73,5 +79,9 @@ __all__ = [
     "RecognizedRegion",
     "DiagramComponent",
     "MathematicalExpression",
-    "NormalizedRepresentation"
+    "NormalizedRepresentation",
+    "AIModelRegistry",
+    "AIBenchmarkResult",
+    "FeatureFlag",
+    "PilotSchoolOnboarding"
 ]

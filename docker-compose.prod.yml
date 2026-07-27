@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aibos-backend-prod
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - API_V1_STR=/api/v1
+      - PROJECT_NAME=AIBOS
+      - DATABASE_URL=postgresql://aibos:aibos_prod_password@db:5432/aibos_db
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/liveness"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aibos-frontend-prod
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000/api/v1
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:15-alpine
+    container_name: aibos-db-prod
+    restart: always
+    environment:
+      POSTGRES_USER: aibos
+      POSTGRES_PASSWORD: aibos_prod_password
+      POSTGRES_DB: aibos_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: aibos-prometheus-prod
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+volumes:
+  postgres_prod_data:
