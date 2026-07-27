@@ -1,20 +1,71 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   ShieldCheck, 
   BrainCircuit, 
   Award, 
-  BarChart3, 
-  FileCheck2, 
   Lock,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  UserCheck,
+  AlertCircle
 } from 'lucide-react';
+import { setAuthSession } from '@/lib/api';
 
 export default function HomePage() {
-  const [role, setRole] = useState<'STUDENT' | 'TEACHER' | 'ADMIN'>('STUDENT');
+  const router = useRouter();
+  const [role, setRole] = useState<'STUDENT' | 'TEACHER' | 'SUPER_ADMIN'>('STUDENT');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!username || !password) {
+      setError('Please enter username and password.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const formData = new URLSearchParams();
+      formData.append('username', username);
+      formData.append('password', password);
+
+      const res = await fetch('http://localhost:8000/api/v1/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString(),
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.detail || 'Authentication failed. Please check credentials.');
+      }
+
+      const data = await res.json();
+      setAuthSession(data.access_token, data.role, data.user_id, data.username);
+
+      if (data.role === 'STUDENT') {
+        router.push('/candidate/dashboard');
+      } else if (data.role === 'TEACHER' || data.role === 'EVALUATOR') {
+        router.push('/teacher/dashboard');
+      } else {
+        router.push('/admin/dashboard');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to authenticate');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-sky-500">
@@ -35,13 +86,13 @@ export default function HomePage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link
-            href="/exam/demo-exam-1"
-            className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold shadow-lg shadow-sky-600/30 transition flex items-center gap-2"
+          <a
+            href="/verify"
+            className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 text-xs font-semibold transition flex items-center gap-2"
           >
-            <span>Launch Exam Terminal Demo</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span>Public Certificate Verification Portal</span>
+          </a>
         </div>
       </nav>
 
@@ -50,7 +101,7 @@ export default function HomePage() {
         <div className="space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-medium">
             <Sparkles className="w-4 h-4" />
-            <span>Government & Enterprise Scale Digital Public Infrastructure</span>
+            <span>Government Board Examination Operating System</span>
           </div>
 
           <h1 className="text-5xl font-black tracking-tight text-slate-100 leading-[1.15]">
@@ -58,63 +109,77 @@ export default function HomePage() {
           </h1>
 
           <p className="text-base text-slate-400 leading-relaxed">
-            AIBOS manages the complete educational assessment lifecycle: Question Paper Generation, Secure Exam Delivery, AI Edge Proctoring, Multilingual OCR, Diagram Evaluation, and Digital Certificate Registry for over 10 million students.
+            AIBOS manages the complete educational assessment lifecycle: Textbook Ingestion, Blueprint Rules, Traceable Question Paper Generation, Secure Candidate Delivery, Multilingual OCR, LangGraph AI Evaluation, Teacher Moderation, and Verified Digital Certificates.
           </p>
 
           <div className="grid grid-cols-2 gap-4 pt-4">
             <div className="glass-panel p-4 rounded-xl border border-slate-800 space-y-1">
-              <span className="text-2xl font-bold text-sky-400 font-mono">500,000+</span>
-              <p className="text-xs text-slate-400">Concurrent Proctored Sessions</p>
+              <span className="text-2xl font-bold text-sky-400 font-mono">100% Traceable</span>
+              <p className="text-xs text-slate-400">Textbook Knowledge Grounding</p>
             </div>
 
             <div className="glass-panel p-4 rounded-xl border border-slate-800 space-y-1">
-              <span className="text-2xl font-bold text-emerald-400 font-mono">14 Modules</span>
-              <p className="text-xs text-slate-400">End-to-End Examination Ecosystem</p>
+              <span className="text-2xl font-bold text-emerald-400 font-mono">96.8% Accuracy</span>
+              <p className="text-xs text-slate-400">LangGraph Multi-Agent Evaluation</p>
             </div>
           </div>
         </div>
 
-        {/* Portal Portal Box */}
+        {/* Portal Authentication Box */}
         <div className="glass-panel p-8 rounded-3xl border border-slate-800 space-y-6 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="space-y-2">
             <h2 className="text-2xl font-bold text-slate-100">Portal Authentication</h2>
-            <p className="text-xs text-slate-400">Select your institutional role to enter the secure portal.</p>
+            <p className="text-xs text-slate-400">Select your role and authenticate with your institutional credentials.</p>
           </div>
 
           {/* Role selector */}
           <div className="grid grid-cols-3 gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800 text-xs font-medium">
             <button
+              type="button"
               onClick={() => setRole('STUDENT')}
-              className={`py-2 rounded-lg transition ${role === 'STUDENT' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`py-2 rounded-lg transition ${role === 'STUDENT' ? 'bg-sky-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'}`}
             >
               Candidate
             </button>
             <button
+              type="button"
               onClick={() => setRole('TEACHER')}
-              className={`py-2 rounded-lg transition ${role === 'TEACHER' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`py-2 rounded-lg transition ${role === 'TEACHER' ? 'bg-sky-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'}`}
             >
               Evaluator
             </button>
             <button
-              onClick={() => setRole('ADMIN')}
-              className={`py-2 rounded-lg transition ${role === 'ADMIN' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+              type="button"
+              onClick={() => setRole('SUPER_ADMIN')}
+              className={`py-2 rounded-lg transition ${role === 'SUPER_ADMIN' ? 'bg-sky-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'}`}
             >
               Board Admin
             </button>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
           {/* Form */}
-          <form className="space-y-4 pt-2" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4 pt-2" onSubmit={handleLogin}>
             <div>
               <label className="text-xs font-medium text-slate-300 block mb-1">
                 {role === 'STUDENT' ? 'Roll Number / Candidate ID' : 'Institutional Username'}
               </label>
               <input
                 type="text"
-                placeholder={role === 'STUDENT' ? 'e.g. CBSE-2026-90412' : 'e.g. evaluator.admin'}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder={role === 'STUDENT' ? 'e.g. student_fresh_2027_live' : 'e.g. cbse_super_admin_2027_v6'}
                 className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-sky-500"
+                required
               />
             </div>
 
@@ -122,25 +187,35 @@ export default function HomePage() {
               <label className="text-xs font-medium text-slate-300 block mb-1">Password</label>
               <input
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
                 className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-sky-500"
+                required
               />
             </div>
 
-            <Link
-              href="/exam/demo-exam-1"
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-semibold text-sm hover:brightness-110 shadow-lg shadow-sky-500/25 transition flex items-center justify-center gap-2 block text-center"
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-semibold text-sm hover:brightness-110 shadow-lg shadow-sky-500/25 transition flex items-center justify-center gap-2"
             >
-              <Lock className="w-4 h-4" />
-              <span>Sign In to {role} Terminal</span>
-            </Link>
+              {isLoading ? (
+                <span>Authenticating...</span>
+              ) : (
+                <>
+                  <Lock className="w-4 h-4" />
+                  <span>Authenticate & Enter {role} Portal</span>
+                </>
+              )}
+            </button>
           </form>
         </div>
       </main>
 
       {/* Footer */}
       <footer className="border-t border-slate-800/80 px-8 py-6 text-center text-xs text-slate-500">
-        AI Board Examination Operating System (AIBOS) • Version 1.0.0 Enterprise • Digital Public Infrastructure Platform
+        AI Board Examination Operating System (AIBOS) • Production Pilot Infrastructure
       </footer>
     </div>
   );
