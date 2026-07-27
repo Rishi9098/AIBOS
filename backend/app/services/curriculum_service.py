@@ -36,9 +36,13 @@ class TextbookIngestionEngine:
         db.refresh(chapter)
 
         # 2. Create Knowledge Nodes (KB-...)
+        kb_id = f"KB-{textbook.board_code}-{textbook.class_level}-{textbook.subject[:3].upper()}-CH01-T01"
+        if db.query(KnowledgeNode).filter(KnowledgeNode.knowledge_id == kb_id).first():
+            kb_id = f"KB-{textbook.board_code}-{textbook.class_level}-{textbook.subject[:3].upper()}-CH01-T01-{generate_uuid()[:4]}"
+
         kn1 = KnowledgeNode(
             chapter_id=chapter.id,
-            knowledge_id=f"KB-{textbook.board_code}-{textbook.class_level}-{textbook.subject[:3].upper()}-CH01-T01",
+            knowledge_id=kb_id,
             node_type="TOPIC",
             title="Electric Charge & Coulomb's Law",
             description="Force between two point charges in vacuum is inversely proportional to square of distance.",

@@ -51,6 +51,18 @@ def register_user(
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+
+    if new_user.role == "STUDENT":
+        student_prof = Student(
+            user_id=new_user.id,
+            roll_number=f"ROLL-{new_user.username}",
+            full_name=new_user.username.replace('_', ' ').title(),
+            class_level="12",
+            section="A"
+        )
+        db.add(student_prof)
+        db.commit()
+
     return new_user
 
 @router.post("/schools", response_model=SchoolResponse)
