@@ -13,14 +13,33 @@ import {
   ShieldCheck, 
   Plus, 
   LogOut,
-  ArrowRight,
+  Compass,
+  KeyRound,
+  GitBranch,
   Layers
 } from 'lucide-react';
 import { getAuthUser, clearAuthSession } from '@/lib/api';
+import PageHelpPanel from '@/components/PageHelpPanel';
+import GuidedTour from '@/components/GuidedTour';
 
 export default function BoardAdminDashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+
+  const adminTourSteps = [
+    {
+      targetTitle: 'Board Administration Control Console',
+      whatIsThisPage: 'This is the master control dashboard for State Education Board Administrators and System Auditors.',
+      whatHappensHere: 'Admins oversee Curriculum Ingestion, Blueprint Rules, Question Paper Approvals, Exam Scheduling, Results Processing, & Operations.',
+      whatHappensNext: 'Select any module below to manage specific examination lifecycle assets.',
+    },
+    {
+      targetTitle: 'Curriculum & Textbook Ingestion Module',
+      whatIsThisPage: 'Link to official NCERT textbook PDF upload and Knowledge Graph construction (/admin/curriculum).',
+      whatHappensHere: 'Textbook PDFs are chunked, embedded into vector stores, and tagged to page numbers.',
+      whatHappensNext: 'Teachers construct 100% traceable question papers from ingested textbook nodes.',
+    },
+  ];
 
   useEffect(() => {
     const authUser = getAuthUser();
@@ -37,10 +56,10 @@ export default function BoardAdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-8">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-8 space-y-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-6">
+        <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-6 gap-4">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
               <Building2 className="w-8 h-8" />
@@ -53,13 +72,39 @@ export default function BoardAdminDashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <GuidedTour roleName="Board Admin" steps={adminTourSteps} />
+
+            <Link
+              href="/explorer"
+              className="px-3.5 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-sky-400 text-xs font-semibold rounded-xl transition flex items-center gap-1.5"
+            >
+              <Compass className="w-4 h-4" />
+              <span>Explorer</span>
+            </Link>
+
+            <Link
+              href="/admin/credentials"
+              className="px-3.5 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-amber-400 text-xs font-semibold rounded-xl transition flex items-center gap-1.5"
+            >
+              <KeyRound className="w-4 h-4" />
+              <span>Credentials</span>
+            </Link>
+
+            <Link
+              href="/admin/hierarchy"
+              className="px-3.5 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-indigo-400 text-xs font-semibold rounded-xl transition flex items-center gap-1.5"
+            >
+              <GitBranch className="w-4 h-4" />
+              <span>Role Matrix</span>
+            </Link>
+
             <Link
               href="/admin/exams/new"
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-600/20"
             >
               <Plus className="w-4 h-4" />
-              <span>Schedule New Exam Session</span>
+              <span>Schedule Exam</span>
             </Link>
 
             <button
@@ -71,6 +116,17 @@ export default function BoardAdminDashboardPage() {
             </button>
           </div>
         </div>
+
+        {/* Page Help Panel */}
+        <PageHelpPanel
+          pageTitle="Board Administration Control Console"
+          purpose="This central control console governs end-to-end examination operations for State Education Boards."
+          userRole="Board Administrator & System Auditor"
+          apisExecuted={['GET /api/v1/auth/me', 'GET /api/v1/ops/metrics']}
+          dbTablesUpdated={['boards', 'exams', 'textbooks', 'blueprints', 'student_results']}
+          nextStep="Schedule a new exam session or manage curriculum knowledge graph assets."
+          consequenceIfSkipped="Exam lifecycles would stall, preventing candidate evaluation or result publication."
+        />
 
         {/* Administration Portals Navigation */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -15,12 +15,29 @@ import {
   Play
 } from 'lucide-react';
 import { api, getAuthUser, clearAuthSession } from '@/lib/api';
+import PageHelpPanel from '@/components/PageHelpPanel';
+import GuidedTour from '@/components/GuidedTour';
 
 export default function CandidateDashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [exams, setExams] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const candidateTourSteps = [
+    {
+      targetTitle: 'Candidate Student Assessment Terminal',
+      whatIsThisPage: 'This is the student candidate dashboard listing upcoming, live, and completed board examination sessions.',
+      whatHappensHere: 'Candidates select active exams, review instructions, and enter timed assessment terminals.',
+      whatHappensNext: 'After taking the exam, candidate submissions are evaluated by the 13-agent LangGraph AI DAG.',
+    },
+    {
+      targetTitle: 'Digital Marksheet & Result Portal',
+      whatIsThisPage: 'Link to the student digital grade card registry (/student/results).',
+      whatHappensHere: 'Students view subject marks, cumulative CGPA, state merit ranks, and download signed marksheets.',
+      whatHappensNext: 'Students share public QR verification links with universities or employers.',
+    },
+  ];
 
   useEffect(() => {
     const authUser = getAuthUser();
@@ -43,7 +60,7 @@ export default function CandidateDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-8">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-8 space-y-8">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-6">
@@ -54,12 +71,14 @@ export default function CandidateDashboardPage() {
             <div>
               <h1 className="text-xl font-bold text-slate-100">Candidate Student Terminal</h1>
               <p className="text-xs text-sky-400 font-mono">
-                Authenticated as: <span className="text-slate-200 font-bold">{user?.username}</span>
+                Authenticated Candidate: <span className="text-slate-200 font-bold">{user?.username}</span>
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
+            <GuidedTour roleName="Candidate Student" steps={candidateTourSteps} />
+
             <Link
               href="/student/results"
               className="px-4 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-sky-400 text-xs font-semibold rounded-xl transition flex items-center gap-2"
@@ -67,6 +86,7 @@ export default function CandidateDashboardPage() {
               <Award className="w-4 h-4" />
               <span>My Digital Marksheet</span>
             </Link>
+
             <button
               onClick={handleLogout}
               className="px-4 py-2 bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 text-xs font-semibold rounded-xl transition flex items-center gap-2"
@@ -76,6 +96,17 @@ export default function CandidateDashboardPage() {
             </button>
           </div>
         </div>
+
+        {/* Page Help Panel */}
+        <PageHelpPanel
+          pageTitle="Candidate Student Dashboard"
+          purpose="This dashboard presents active board examinations assigned to the candidate student by the state board administration."
+          userRole="Candidate Student"
+          apisExecuted={['GET /api/v1/exams/', 'GET /api/v1/auth/me']}
+          dbTablesUpdated={['exams', 'student_submissions']}
+          nextStep="Click 'Start Examination Terminal' to enter the timed assessment session."
+          consequenceIfSkipped="The candidate would be unable to take published board examinations or submit answer scripts."
+        />
 
         {/* Live & Scheduled Examinations */}
         <div className="space-y-4">
@@ -110,9 +141,9 @@ export default function CandidateDashboardPage() {
 
                   <Link
                     href={`/exam/${exam.id}`}
-                    className="w-full py-3 bg-gradient-to-r from-sky-500 to-indigo-600 hover:brightness-110 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20"
+                    className="w-full py-3 bg-gradient-to-r from-sky-500 to-indigo-600 hover:brightness-110 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20 block text-center"
                   >
-                    <Play className="w-4 h-4 fill-white" />
+                    <Play className="w-4 h-4 fill-white inline" />
                     <span>Start Examination Terminal</span>
                   </Link>
                 </div>

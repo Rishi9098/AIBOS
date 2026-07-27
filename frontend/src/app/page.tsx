@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { 
   ShieldCheck, 
   BrainCircuit, 
@@ -10,9 +11,15 @@ import {
   Sparkles,
   ArrowRight,
   UserCheck,
-  AlertCircle
+  AlertCircle,
+  Compass,
+  BookOpen,
+  KeyRound,
+  GitBranch
 } from 'lucide-react';
 import { setAuthSession } from '@/lib/api';
+import DeveloperApiConsole, { logApiExecution } from '@/components/DeveloperApiConsole';
+import GuidedTour from '@/components/GuidedTour';
 
 export default function HomePage() {
   const router = useRouter();
@@ -21,6 +28,21 @@ export default function HomePage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const landingTourSteps = [
+    {
+      targetTitle: 'AIBOS Main Portal Authentication',
+      whatIsThisPage: 'This is the entry portal for candidates, teachers, evaluators, and board administrators to authenticate into AIBOS.',
+      whatHappensHere: 'Users select their institutional role and submit credentials. Upon authentication, a JWT Bearer token is issued.',
+      whatHappensNext: 'Users are dynamically routed to their specific role dashboard (Candidate, Teacher, or Board Admin).',
+    },
+    {
+      targetTitle: 'System Explorer & Architecture Explainer',
+      whatIsThisPage: 'Navigational shortcuts to the AIBOS System Explorer (/explorer) and Educational Architecture guide (/how-it-works).',
+      whatHappensHere: 'Government auditors and school principals can explore the 20-step lifecycle and zero-hallucination vector knowledge graph.',
+      whatHappensNext: 'Audit evidence and DB table mappings are inspected interactively.',
+    },
+  ];
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +58,15 @@ export default function HomePage() {
       const formData = new URLSearchParams();
       formData.append('username', username);
       formData.append('password', password);
+
+      logApiExecution({
+        actionName: `Portal Login Request (${role})`,
+        method: 'POST',
+        endpoint: '/api/v1/auth/login',
+        dbTables: ['users', 'candidate_profiles'],
+        backendService: 'app.api.v1.auth',
+        status: 200,
+      });
 
       const res = await fetch('http://localhost:8000/api/v1/auth/login', {
         method: 'POST',
@@ -68,9 +99,9 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-sky-500">
-      {/* Header Navigation */}
-      <nav className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-8 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-sky-500 relative pb-24">
+      {/* Top Header Navigation */}
+      <nav className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-8 py-4 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-sky-500/20">
             A
@@ -85,23 +116,58 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <a
-            href="/verify"
-            className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 text-xs font-semibold transition flex items-center gap-2"
+        {/* Navigation Bar Links */}
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href="/explorer"
+            className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-sky-400 text-xs font-semibold transition flex items-center gap-1.5"
           >
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>Public Certificate Verification Portal</span>
-          </a>
+            <Compass className="w-4 h-4" />
+            <span>System Explorer</span>
+          </Link>
+
+          <Link
+            href="/how-it-works"
+            className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-teal-400 text-xs font-semibold transition flex items-center gap-1.5"
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>How AIBOS Works</span>
+          </Link>
+
+          <Link
+            href="/admin/credentials"
+            className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-amber-400 text-xs font-semibold transition flex items-center gap-1.5"
+          >
+            <KeyRound className="w-4 h-4" />
+            <span>Credential Console</span>
+          </Link>
+
+          <Link
+            href="/admin/hierarchy"
+            className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-indigo-400 text-xs font-semibold transition flex items-center gap-1.5"
+          >
+            <GitBranch className="w-4 h-4" />
+            <span>Role Matrix</span>
+          </Link>
+
+          <Link
+            href="/verify"
+            className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-emerald-400 text-xs font-semibold transition flex items-center gap-1.5"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>QR Verification</span>
+          </Link>
+
+          <GuidedTour roleName="Super Admin" steps={landingTourSteps} />
         </div>
       </nav>
 
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-8 py-16 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center flex-1">
+      <main className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center flex-1">
         <div className="space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-medium">
             <Sparkles className="w-4 h-4" />
-            <span>Government Board Examination Operating System</span>
+            <span>Government Board Examination Product Education System</span>
           </div>
 
           <h1 className="text-5xl font-black tracking-tight text-slate-100 leading-[1.15]">
@@ -112,7 +178,7 @@ export default function HomePage() {
             AIBOS manages the complete educational assessment lifecycle: Textbook Ingestion, Blueprint Rules, Traceable Question Paper Generation, Secure Candidate Delivery, Multilingual OCR, LangGraph AI Evaluation, Teacher Moderation, and Verified Digital Certificates.
           </p>
 
-          <div className="grid grid-cols-2 gap-4 pt-4">
+          <div className="grid grid-cols-2 gap-4 pt-2">
             <div className="glass-panel p-4 rounded-xl border border-slate-800 space-y-1">
               <span className="text-2xl font-bold text-sky-400 font-mono">100% Traceable</span>
               <p className="text-xs text-slate-400">Textbook Knowledge Grounding</p>
@@ -213,10 +279,8 @@ export default function HomePage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800/80 px-8 py-6 text-center text-xs text-slate-500">
-        AI Board Examination Operating System (AIBOS) • Production Pilot Infrastructure
-      </footer>
+      {/* Floating Developer API Console */}
+      <DeveloperApiConsole />
     </div>
   );
 }
