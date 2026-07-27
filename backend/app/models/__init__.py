@@ -44,6 +44,14 @@ from app.models.observability import (
     FeatureFlag,
     PilotSchoolOnboarding
 )
+from app.models.results_and_certificates import (
+    StudentResult,
+    ResultModerationHistory,
+    DigitalMarksheet,
+    DigitalCertificate,
+    ResultPublication,
+    RevaluationRequest
+)
 
 __all__ = [
     "User",
@@ -83,5 +91,11 @@ __all__ = [
     "AIModelRegistry",
     "AIBenchmarkResult",
     "FeatureFlag",
-    "PilotSchoolOnboarding"
+    "PilotSchoolOnboarding",
+    "StudentResult",
+    "ResultModerationHistory",
+    "DigitalMarksheet",
+    "DigitalCertificate",
+    "ResultPublication",
+    "RevaluationRequest"
 ]

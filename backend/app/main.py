@@ -9,7 +9,8 @@ from app.models import (
     rules_and_blueprints,
     evaluation,
     multimodal,
-    observability
+    observability,
+    results_and_certificates
 )
 from app.api.v1 import (
     auth,
@@ -19,7 +20,8 @@ from app.api.v1 import (
     evaluation as evaluation_api,
     multimodal as multimodal_api,
     health,
-    ops
+    ops,
+    results as results_api
 )
 
 # Create DB tables if missing
@@ -49,6 +51,7 @@ app.include_router(evaluation_api.router, prefix=f"{settings.API_V1_STR}/evaluat
 app.include_router(multimodal_api.router, prefix=f"{settings.API_V1_STR}/multimodal", tags=["Unified Multimodal Understanding Platform"])
 app.include_router(health.router, prefix="/health", tags=["Health & Diagnostics Probes"])
 app.include_router(ops.router, prefix=f"{settings.API_V1_STR}/ops", tags=["Operations & Government Pilot Readiness"])
+app.include_router(results_api.router, prefix=f"{settings.API_V1_STR}/results", tags=["Results, Certification & Board Management Platform"])
 
 @app.get("/metrics")
 def prometheus_metrics():
@@ -58,6 +61,6 @@ def prometheus_metrics():
 def root_status():
     return {
         "system": "AI Board Examination Operating System (AIBOS)",
-        "version": "1.0.0-milestone6",
+        "version": "1.0.0-milestone7",
         "status": "OPERATIONAL"
     }
