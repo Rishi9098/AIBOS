@@ -52,6 +52,12 @@ from app.models.results_and_certificates import (
     ResultPublication,
     RevaluationRequest
 )
+from app.models.langgraph import (
+    GraphExecution,
+    AgentRun,
+    WorkflowTemplate,
+    PromptVersion
+)
 
 __all__ = [
     "User",
@@ -97,5 +103,9 @@ __all__ = [
     "DigitalMarksheet",
     "DigitalCertificate",
     "ResultPublication",
-    "RevaluationRequest"
+    "RevaluationRequest",
+    "GraphExecution",
+    "AgentRun",
+    "WorkflowTemplate",
+    "PromptVersion"
 ]

@@ -10,7 +10,8 @@ from app.models import (
     evaluation,
     multimodal,
     observability,
-    results_and_certificates
+    results_and_certificates,
+    langgraph
 )
 from app.api.v1 import (
     auth,
@@ -21,7 +22,8 @@ from app.api.v1 import (
     multimodal as multimodal_api,
     health,
     ops,
-    results as results_api
+    results as results_api,
+    langgraph as langgraph_api
 )
 
 # Create DB tables if missing
@@ -52,6 +54,7 @@ app.include_router(multimodal_api.router, prefix=f"{settings.API_V1_STR}/multimo
 app.include_router(health.router, prefix="/health", tags=["Health & Diagnostics Probes"])
 app.include_router(ops.router, prefix=f"{settings.API_V1_STR}/ops", tags=["Operations & Government Pilot Readiness"])
 app.include_router(results_api.router, prefix=f"{settings.API_V1_STR}/results", tags=["Results, Certification & Board Management Platform"])
+app.include_router(langgraph_api.router, prefix=f"{settings.API_V1_STR}/langgraph", tags=["LangGraph Multi-Agent Intelligence Platform"])
 
 @app.get("/metrics")
 def prometheus_metrics():
@@ -61,6 +64,6 @@ def prometheus_metrics():
 def root_status():
     return {
         "system": "AI Board Examination Operating System (AIBOS)",
-        "version": "1.0.0-milestone7",
+        "version": "1.0.0-milestone8",
         "status": "OPERATIONAL"
     }
