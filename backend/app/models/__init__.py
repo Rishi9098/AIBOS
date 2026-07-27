@@ -58,6 +58,17 @@ from app.models.langgraph import (
     WorkflowTemplate,
     PromptVersion
 )
+from app.models.curriculum import (
+    BoardCurriculum,
+    Textbook,
+    TextbookChapter,
+    KnowledgeNode,
+    KnowledgeRelationship,
+    LearningOutcome,
+    TextbookChunk,
+    QuestionSourceMapping,
+    QuestionTraceability
+)
 
 __all__ = [
     "User",
@@ -107,5 +118,14 @@ __all__ = [
     "GraphExecution",
     "AgentRun",
     "WorkflowTemplate",
-    "PromptVersion"
+    "PromptVersion",
+    "BoardCurriculum",
+    "Textbook",
+    "TextbookChapter",
+    "KnowledgeNode",
+    "KnowledgeRelationship",
+    "LearningOutcome",
+    "TextbookChunk",
+    "QuestionSourceMapping",
+    "QuestionTraceability"
 ]

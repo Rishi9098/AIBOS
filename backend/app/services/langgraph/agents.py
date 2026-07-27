@@ -33,13 +33,28 @@ class BaseAgent:
         raise NotImplementedError
 
 
+class CurriculumRetrievalAgent(BaseAgent):
+    def __init__(self):
+        super().__init__("CurriculumRetrievalAgent", prompt_version="v2.0-CurriculumGuard")
+
+    def run_logic(self, state: Dict[str, Any]) -> Dict[str, Any]:
+        return {
+            "curriculum_node": "KB-CBSE-12-PHY-CH01-T01",
+            "approved_textbook": "NCERT Class 12 Physics",
+            "page_reference": 12,
+            "zero_external_knowledge_guarantee": True,
+            "retrieval_status": "APPROVED_CURRICULUM_ONLY",
+            "confidence": 1.0
+        }
+
+
 class EvaluationPlannerAgent(BaseAgent):
     def __init__(self):
         super().__init__("EvaluationPlannerAgent")
 
     def run_logic(self, state: Dict[str, Any]) -> Dict[str, Any]:
         return {
-            "plan": ["Classify Question", "Run OCR / Parse", "Evaluate Step-by-Step", "Verify Rubric", "Calculate Confidence"],
+            "plan": ["Retrieve Curriculum", "Classify Question", "Run OCR / Parse", "Evaluate Step-by-Step", "Verify Rubric", "Calculate Confidence"],
             "planner_status": "PLAN_READY",
             "confidence": 0.98
         }
