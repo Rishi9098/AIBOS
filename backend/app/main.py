@@ -2,8 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.models import identity, question_bank, exam
-from app.api.v1 import auth, questions, exams
+from app.models import (
+    identity,
+    question_bank,
+    exam,
+    rules_and_blueprints
+)
+from app.api.v1 import auth, questions, exams, rules_and_blueprints as rules_bp_api
 
 # Create DB tables if missing
 Base.metadata.create_all(bind=engine)
@@ -27,11 +32,12 @@ if settings.BACKEND_CORS_ORIGINS:
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Auth & Identity"])
 app.include_router(questions.router, prefix=f"{settings.API_V1_STR}/questions", tags=["Question Bank"])
 app.include_router(exams.router, prefix=f"{settings.API_V1_STR}/exams", tags=["Exam Engine"])
+app.include_router(rules_bp_api.router, prefix=f"{settings.API_V1_STR}/rules-blueprints", tags=["Rules Engine & Blueprint Engine"])
 
 @app.get("/")
 def root_status():
     return {
         "system": "AI Board Examination Operating System (AIBOS)",
-        "version": "1.0.0-milestone2",
+        "version": "1.0.0-milestone3",
         "status": "OPERATIONAL"
     }

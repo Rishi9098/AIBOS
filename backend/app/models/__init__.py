@@ -10,6 +10,16 @@ from app.models.exam import (
     ProctoringLog,
     AIEvaluation
 )
+from app.models.rules_and_blueprints import (
+    BoardProfile,
+    AcademicSession,
+    ExamRules,
+    ExamBlueprint,
+    BlueprintVersion,
+    ExamSection,
+    QuestionStateTransition,
+    ExamWorkflowHistory
+)
 
 __all__ = [
     "User",
@@ -23,5 +33,13 @@ __all__ = [
     "AnswerVersionHistory",
     "ActivityLog",
     "ProctoringLog",
-    "AIEvaluation"
+    "AIEvaluation",
+    "BoardProfile",
+    "AcademicSession",
+    "ExamRules",
+    "ExamBlueprint",
+    "BlueprintVersion",
+    "ExamSection",
+    "QuestionStateTransition",
+    "ExamWorkflowHistory"
 ]
