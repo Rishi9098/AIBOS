@@ -18,6 +18,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import PageHelpPanel from '@/components/PageHelpPanel';
+import RouteGuard from '@/components/RouteGuard';
 
 export default function SystemExplorerPage() {
   const [activeTab, setActiveTab] = useState<'STUDENT' | 'TEACHER' | 'BOARD' | 'ADMIN'>('STUDENT');
@@ -192,154 +193,156 @@ export default function SystemExplorerPage() {
   const currentJourney = journeyData[activeTab];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-8 space-y-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
-              <Compass className="w-8 h-8" />
+    <RouteGuard allowedRoles={['BOARD_ADMIN', 'SUPER_ADMIN']}>
+      <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-8 space-y-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-slate-800 pb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                <Compass className="w-8 h-8" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-3">
+                  <span>AIBOS Interactive System Explorer</span>
+                  <span className="px-2.5 py-0.5 text-xs font-mono bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-full font-bold">
+                    GOVERNMENT ARCHITECTURE AUDITOR
+                  </span>
+                </h1>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Explore end-to-end user journeys mapped directly to UI pages, backend REST APIs, database tables, and AI models.
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-3">
-                <span>AIBOS Interactive System Explorer</span>
-                <span className="px-2.5 py-0.5 text-xs font-mono bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-full font-bold">
-                  GOVERNMENT ARCHITECTURE AUDITOR
-                </span>
-              </h1>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Explore end-to-end user journeys mapped directly to UI pages, backend REST APIs, database tables, and AI models.
-              </p>
-            </div>
+
+            <Link
+              href="/admin/dashboard"
+              className="px-4 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Admin Dashboard</span>
+            </Link>
           </div>
 
-          <Link
-            href="/admin/dashboard"
-            className="px-4 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Admin Dashboard</span>
-          </Link>
-        </div>
+          {/* Page Help Panel */}
+          <PageHelpPanel
+            pageTitle="AIBOS System Explorer"
+            purpose="This interactive explorer maps the complete operational journey of Candidates, Teachers, Board Administrators, and Super Administrators across UI pages, backend REST APIs, DB tables, and AI agents."
+            userRole="Government Auditors, Board Officials, & Solution Architects"
+            apisExecuted={['GET /api/v1/ops/metrics', 'GET /api/v1/auth/roles']}
+            dbTablesUpdated={['users', 'exams', 'evaluations', 'student_results', 'ops_metrics']}
+            nextStep="Click on any journey tab below to inspect specific workflow nodes and executed APIs."
+            consequenceIfSkipped="Auditors would lack visual traceability mapping user actions to exact database schema tables and REST endpoints."
+          />
 
-        {/* Page Help Panel */}
-        <PageHelpPanel
-          pageTitle="AIBOS System Explorer"
-          purpose="This interactive explorer maps the complete operational journey of Candidates, Teachers, Board Administrators, and Super Administrators across UI pages, backend REST APIs, DB tables, and AI agents."
-          userRole="Government Auditors, Board Officials, & Solution Architects"
-          apisExecuted={['GET /api/v1/ops/metrics', 'GET /api/v1/auth/roles']}
-          dbTablesUpdated={['users', 'exams', 'evaluations', 'student_results', 'ops_metrics']}
-          nextStep="Click on any journey tab below to inspect specific workflow nodes and executed APIs."
-          consequenceIfSkipped="Auditors would lack visual traceability mapping user actions to exact database schema tables and REST endpoints."
-        />
+          {/* Tab Buttons */}
+          <div className="grid grid-cols-4 gap-3 bg-slate-900/80 p-2 rounded-2xl border border-slate-800 font-sans text-xs font-bold">
+            <button
+              onClick={() => setActiveTab('STUDENT')}
+              className={`py-3 rounded-xl transition flex items-center justify-center gap-2 ${
+                activeTab === 'STUDENT' ? 'bg-sky-600 text-white shadow-lg shadow-sky-600/20' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <User className="w-4 h-4" />
+              <span>Student Journey</span>
+            </button>
 
-        {/* Tab Buttons */}
-        <div className="grid grid-cols-4 gap-3 bg-slate-900/80 p-2 rounded-2xl border border-slate-800 font-sans text-xs font-bold">
-          <button
-            onClick={() => setActiveTab('STUDENT')}
-            className={`py-3 rounded-xl transition flex items-center justify-center gap-2 ${
-              activeTab === 'STUDENT' ? 'bg-sky-600 text-white shadow-lg shadow-sky-600/20' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <User className="w-4 h-4" />
-            <span>Student Journey</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('TEACHER')}
+              className={`py-3 rounded-xl transition flex items-center justify-center gap-2 ${
+                activeTab === 'TEACHER' ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/20' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <UserCheck className="w-4 h-4" />
+              <span>Teacher Journey</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('TEACHER')}
-            className={`py-3 rounded-xl transition flex items-center justify-center gap-2 ${
-              activeTab === 'TEACHER' ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/20' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <UserCheck className="w-4 h-4" />
-            <span>Teacher Journey</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('BOARD')}
+              className={`py-3 rounded-xl transition flex items-center justify-center gap-2 ${
+                activeTab === 'BOARD' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/20' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Building2 className="w-4 h-4" />
+              <span>Board Journey</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('BOARD')}
-            className={`py-3 rounded-xl transition flex items-center justify-center gap-2 ${
-              activeTab === 'BOARD' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/20' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Building2 className="w-4 h-4" />
-            <span>Board Journey</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('ADMIN')}
+              className={`py-3 rounded-xl transition flex items-center justify-center gap-2 ${
+                activeTab === 'ADMIN' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Super Admin Journey</span>
+            </button>
+          </div>
 
-          <button
-            onClick={() => setActiveTab('ADMIN')}
-            className={`py-3 rounded-xl transition flex items-center justify-center gap-2 ${
-              activeTab === 'ADMIN' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <ShieldCheck className="w-4 h-4" />
-            <span>Super Admin Journey</span>
-          </button>
-        </div>
+          {/* Journey Header */}
+          <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-2">
+            <h2 className="text-xl font-bold text-slate-100">{currentJourney.title}</h2>
+            <p className="text-xs text-slate-400 leading-relaxed">{currentJourney.description}</p>
+          </div>
 
-        {/* Journey Header */}
-        <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-2">
-          <h2 className="text-xl font-bold text-slate-100">{currentJourney.title}</h2>
-          <p className="text-xs text-slate-400 leading-relaxed">{currentJourney.description}</p>
-        </div>
-
-        {/* Step Breakdown Cards */}
-        <div className="space-y-6">
-          {currentJourney.steps.map((step) => (
-            <div key={step.stepNumber} className="bg-slate-900/90 border border-slate-800 hover:border-sky-500/40 rounded-3xl p-6 space-y-4 shadow-xl transition">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center font-bold font-mono text-sm">
-                    #{step.stepNumber}
+          {/* Step Breakdown Cards */}
+          <div className="space-y-6">
+            {currentJourney.steps.map((step) => (
+              <div key={step.stepNumber} className="bg-slate-900/90 border border-slate-800 hover:border-sky-500/40 rounded-3xl p-6 space-y-4 shadow-xl transition">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center font-bold font-mono text-sm">
+                      #{step.stepNumber}
+                    </div>
+                    <h3 className="text-base font-bold text-slate-100">{step.name}</h3>
                   </div>
-                  <h3 className="text-base font-bold text-slate-100">{step.name}</h3>
-                </div>
-                <Link href={step.uiPage} className="text-xs font-mono text-sky-400 hover:underline">
-                  Open Page ({step.uiPage}) →
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
-                  <div className="text-slate-500 text-[10px] flex items-center gap-1">
-                    <Code className="w-3 h-3 text-purple-400" />
-                    <span>BACKEND API ENDPOINT</span>
-                  </div>
-                  <div className="text-purple-300 font-bold">{step.apiEndpoint}</div>
+                  <Link href={step.uiPage} className="text-xs font-mono text-sky-400 hover:underline">
+                    Open Page ({step.uiPage}) →
+                  </Link>
                 </div>
 
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
-                  <div className="text-slate-500 text-[10px] flex items-center gap-1">
-                    <Database className="w-3 h-3 text-amber-400" />
-                    <span>DATABASE TABLES</span>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
+                    <div className="text-slate-500 text-[10px] flex items-center gap-1">
+                      <Code className="w-3 h-3 text-purple-400" />
+                      <span>BACKEND API ENDPOINT</span>
+                    </div>
+                    <div className="text-purple-300 font-bold">{step.apiEndpoint}</div>
                   </div>
-                  <div className="text-amber-300 font-bold">{step.dbTables.join(', ')}</div>
+
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
+                    <div className="text-slate-500 text-[10px] flex items-center gap-1">
+                      <Database className="w-3 h-3 text-amber-400" />
+                      <span>DATABASE TABLES</span>
+                    </div>
+                    <div className="text-amber-300 font-bold">{step.dbTables.join(', ')}</div>
+                  </div>
+
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
+                    <div className="text-slate-500 text-[10px] flex items-center gap-1">
+                      <Bot className="w-3 h-3 text-emerald-400" />
+                      <span>LANGGRAPH AGENTS</span>
+                    </div>
+                    <div className="text-emerald-300 font-bold">{step.agents.join(', ')}</div>
+                  </div>
+
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
+                    <div className="text-slate-500 text-[10px] flex items-center gap-1">
+                      <Cpu className="w-3 h-3 text-sky-400" />
+                      <span>AI MODELS / UTILS</span>
+                    </div>
+                    <div className="text-sky-300 font-bold">{step.aiModels.join(', ')}</div>
+                  </div>
                 </div>
 
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
-                  <div className="text-slate-500 text-[10px] flex items-center gap-1">
-                    <Bot className="w-3 h-3 text-emerald-400" />
-                    <span>LANGGRAPH AGENTS</span>
-                  </div>
-                  <div className="text-emerald-300 font-bold">{step.agents.join(', ')}</div>
-                </div>
-
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
-                  <div className="text-slate-500 text-[10px] flex items-center gap-1">
-                    <Cpu className="w-3 h-3 text-sky-400" />
-                    <span>AI MODELS / UTILS</span>
-                  </div>
-                  <div className="text-sky-300 font-bold">{step.aiModels.join(', ')}</div>
+                <div className="text-xs text-slate-400 font-sans flex items-center gap-2 pt-2 border-t border-slate-800">
+                  <ArrowRight className="w-4 h-4 text-sky-400" />
+                  <span>Next Workflow Step: <strong className="text-slate-200">{step.nextStep}</strong></span>
                 </div>
               </div>
-
-              <div className="text-xs text-slate-400 font-sans flex items-center gap-2 pt-2 border-t border-slate-800">
-                <ArrowRight className="w-4 h-4 text-sky-400" />
-                <span>Next Workflow Step: <strong className="text-slate-200">{step.nextStep}</strong></span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </RouteGuard>
   );
 }

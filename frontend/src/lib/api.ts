@@ -1,3 +1,5 @@
+import { logApiExecution } from '@/components/DeveloperApiConsole';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 export function getAuthToken(): string | null {
@@ -46,33 +48,67 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
   }
 
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+  const method = (options.method || 'GET') as any;
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
+  // Infer database tables based on API endpoint
+  let dbTables = ['general_registry'];
+  if (endpoint.includes('/curriculum')) dbTables = ['textbooks', 'knowledge_graph_nodes'];
+  else if (endpoint.includes('/exams')) dbTables = ['exams', 'student_submissions'];
+  else if (endpoint.includes('/evaluation')) dbTables = ['evaluations', 'teacher_overrides'];
+  else if (endpoint.includes('/results')) dbTables = ['student_results', 'digital_certificates'];
+  else if (endpoint.includes('/auth')) dbTables = ['users', 'roles'];
 
-  if (response.status === 401) {
-    clearAuthSession();
-    if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/')) {
-      window.location.href = '/';
-    }
-  }
+  const startTime = Date.now();
 
-  if (!response.ok) {
-    let errorMessage = `HTTP Error ${response.status}: ${response.statusText}`;
-    try {
-      const errJson = await response.json();
-      if (errJson.detail) {
-        errorMessage = typeof errJson.detail === 'string' ? errJson.detail : JSON.stringify(errJson.detail);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
+
+    const latency = Date.now() - startTime;
+
+    logApiExecution({
+      actionName: `HTTP ${method} Call (${endpoint.split('?')[0]})`,
+      method,
+      endpoint,
+      dbTables,
+      backendService: 'app.api.v1',
+      status: response.status,
+    });
+
+    if (response.status === 401) {
+      clearAuthSession();
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/')) {
+        window.location.href = '/';
       }
-    } catch (e) {
-      // ignore json parse error
     }
-    throw new Error(errorMessage);
-  }
 
-  return response.json();
+    if (!response.ok) {
+      let errorMessage = `HTTP Error ${response.status}: ${response.statusText}`;
+      try {
+        const errJson = await response.json();
+        if (errJson.detail) {
+          errorMessage = typeof errJson.detail === 'string' ? errJson.detail : JSON.stringify(errJson.detail);
+        }
+      } catch (e) {
+        // ignore json parse error
+      }
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
+  } catch (err: any) {
+    logApiExecution({
+      actionName: `HTTP ${method} Failure (${endpoint})`,
+      method,
+      endpoint,
+      dbTables,
+      backendService: 'app.api.v1',
+      status: 500,
+    });
+    throw err;
+  }
 }
 
 export const api = {

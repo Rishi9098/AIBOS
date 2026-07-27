@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
@@ -17,9 +17,8 @@ import {
   KeyRound,
   GitBranch
 } from 'lucide-react';
-import { setAuthSession } from '@/lib/api';
+import { setAuthSession, getAuthUser } from '@/lib/api';
 import DeveloperApiConsole, { logApiExecution } from '@/components/DeveloperApiConsole';
-import GuidedTour from '@/components/GuidedTour';
 
 export default function HomePage() {
   const router = useRouter();
@@ -28,21 +27,13 @@ export default function HomePage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
-  const landingTourSteps = [
-    {
-      targetTitle: 'AIBOS Main Portal Authentication',
-      whatIsThisPage: 'This is the entry portal for candidates, teachers, evaluators, and board administrators to authenticate into AIBOS.',
-      whatHappensHere: 'Users select their institutional role and submit credentials. Upon authentication, a JWT Bearer token is issued.',
-      whatHappensNext: 'Users are dynamically routed to their specific role dashboard (Candidate, Teacher, or Board Admin).',
-    },
-    {
-      targetTitle: 'System Explorer & Architecture Explainer',
-      whatIsThisPage: 'Navigational shortcuts to the AIBOS System Explorer (/explorer) and Educational Architecture guide (/how-it-works).',
-      whatHappensHere: 'Government auditors and school principals can explore the 20-step lifecycle and zero-hallucination vector knowledge graph.',
-      whatHappensNext: 'Audit evidence and DB table mappings are inspected interactively.',
-    },
-  ];
+  useEffect(() => {
+    setUser(getAuthUser());
+  }, []);
+
+  const isAdmin = user && (user.role === 'SUPER_ADMIN' || user.role === 'BOARD_ADMIN');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,49 +107,51 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Navigation Bar Links */}
+        {/* Public Navigation Bar Links */}
         <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/explorer"
-            className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-sky-400 text-xs font-semibold transition flex items-center gap-1.5"
-          >
-            <Compass className="w-4 h-4" />
-            <span>System Explorer</span>
-          </Link>
+          {isAdmin && (
+            <>
+              <Link
+                href="/explorer"
+                className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-sky-400 text-xs font-semibold transition flex items-center gap-1.5"
+              >
+                <Compass className="w-4 h-4" />
+                <span>Explorer</span>
+              </Link>
 
-          <Link
-            href="/how-it-works"
-            className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-teal-400 text-xs font-semibold transition flex items-center gap-1.5"
-          >
-            <BookOpen className="w-4 h-4" />
-            <span>How AIBOS Works</span>
-          </Link>
+              <Link
+                href="/how-it-works"
+                className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-teal-400 text-xs font-semibold transition flex items-center gap-1.5"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>How AIBOS Works</span>
+              </Link>
 
-          <Link
-            href="/admin/credentials"
-            className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-amber-400 text-xs font-semibold transition flex items-center gap-1.5"
-          >
-            <KeyRound className="w-4 h-4" />
-            <span>Credential Console</span>
-          </Link>
+              <Link
+                href="/admin/credentials"
+                className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-amber-400 text-xs font-semibold transition flex items-center gap-1.5"
+              >
+                <KeyRound className="w-4 h-4" />
+                <span>Credentials</span>
+              </Link>
 
-          <Link
-            href="/admin/hierarchy"
-            className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-indigo-400 text-xs font-semibold transition flex items-center gap-1.5"
-          >
-            <GitBranch className="w-4 h-4" />
-            <span>Role Matrix</span>
-          </Link>
+              <Link
+                href="/admin/hierarchy"
+                className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-indigo-400 text-xs font-semibold transition flex items-center gap-1.5"
+              >
+                <GitBranch className="w-4 h-4" />
+                <span>Role Matrix</span>
+              </Link>
+            </>
+          )}
 
           <Link
             href="/verify"
-            className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-emerald-400 text-xs font-semibold transition flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-400 text-xs font-bold transition flex items-center gap-2"
           >
             <ShieldCheck className="w-4 h-4" />
-            <span>QR Verification</span>
+            <span>Public Certificate Verification Portal</span>
           </Link>
-
-          <GuidedTour roleName="Super Admin" steps={landingTourSteps} />
         </div>
       </nav>
 
@@ -167,7 +160,7 @@ export default function HomePage() {
         <div className="space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-medium">
             <Sparkles className="w-4 h-4" />
-            <span>Government Board Examination Product Education System</span>
+            <span>Government Board Examination Infrastructure System</span>
           </div>
 
           <h1 className="text-5xl font-black tracking-tight text-slate-100 leading-[1.15]">
@@ -279,8 +272,8 @@ export default function HomePage() {
         </div>
       </main>
 
-      {/* Floating Developer API Console */}
-      <DeveloperApiConsole />
+      {/* Floating Developer API Console (Rendered for Admins) */}
+      {isAdmin && <DeveloperApiConsole />}
     </div>
   );
 }
