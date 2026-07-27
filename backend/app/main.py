@@ -7,14 +7,16 @@ from app.models import (
     question_bank,
     exam,
     rules_and_blueprints,
-    evaluation
+    evaluation,
+    multimodal
 )
 from app.api.v1 import (
     auth,
     questions,
     exams,
     rules_and_blueprints as rules_bp_api,
-    evaluation as evaluation_api
+    evaluation as evaluation_api,
+    multimodal as multimodal_api
 )
 
 # Create DB tables if missing
@@ -41,11 +43,12 @@ app.include_router(questions.router, prefix=f"{settings.API_V1_STR}/questions", 
 app.include_router(exams.router, prefix=f"{settings.API_V1_STR}/exams", tags=["Exam Engine"])
 app.include_router(rules_bp_api.router, prefix=f"{settings.API_V1_STR}/rules-blueprints", tags=["Rules Engine & Blueprint Engine"])
 app.include_router(evaluation_api.router, prefix=f"{settings.API_V1_STR}/evaluation", tags=["AI Evaluation Platform"])
+app.include_router(multimodal_api.router, prefix=f"{settings.API_V1_STR}/multimodal", tags=["Unified Multimodal Understanding Platform"])
 
 @app.get("/")
 def root_status():
     return {
         "system": "AI Board Examination Operating System (AIBOS)",
-        "version": "1.0.0-milestone4",
+        "version": "1.0.0-milestone5",
         "status": "OPERATIONAL"
     }

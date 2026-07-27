@@ -29,6 +29,15 @@ from app.models.evaluation import (
     TeacherOverride,
     EvaluationHistory
 )
+from app.models.multimodal import (
+    UploadedDocument,
+    DocumentPage,
+    OCRResult,
+    RecognizedRegion,
+    DiagramComponent,
+    MathematicalExpression,
+    NormalizedRepresentation
+)
 
 __all__ = [
     "User",
@@ -57,5 +66,12 @@ __all__ = [
     "EvaluationEvidence",
     "ModerationDecision",
     "TeacherOverride",
-    "EvaluationHistory"
+    "EvaluationHistory",
+    "UploadedDocument",
+    "DocumentPage",
+    "OCRResult",
+    "RecognizedRegion",
+    "DiagramComponent",
+    "MathematicalExpression",
+    "NormalizedRepresentation"
 ]
