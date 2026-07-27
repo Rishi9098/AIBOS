@@ -20,6 +20,15 @@ from app.models.rules_and_blueprints import (
     QuestionStateTransition,
     ExamWorkflowHistory
 )
+from app.models.evaluation import (
+    Rubric,
+    RubricVersion,
+    EvaluationResult,
+    EvaluationEvidence,
+    ModerationDecision,
+    TeacherOverride,
+    EvaluationHistory
+)
 
 __all__ = [
     "User",
@@ -41,5 +50,12 @@ __all__ = [
     "BlueprintVersion",
     "ExamSection",
     "QuestionStateTransition",
-    "ExamWorkflowHistory"
+    "ExamWorkflowHistory",
+    "Rubric",
+    "RubricVersion",
+    "EvaluationResult",
+    "EvaluationEvidence",
+    "ModerationDecision",
+    "TeacherOverride",
+    "EvaluationHistory"
 ]

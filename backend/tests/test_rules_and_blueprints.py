@@ -9,36 +9,31 @@ import app.models
 from app.main import app as fastapi_app
 from app.core.database import Base, get_db
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-def override_get_db():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-fastapi_app.dependency_overrides[get_db] = override_get_db
-
 @pytest.fixture(autouse=True)
 def setup_database():
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool
+    )
     Base.metadata.create_all(bind=engine)
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+    def override_get_db():
+        db = TestingSessionLocal()
+        try:
+            yield db
+        finally:
+            db.close()
+
+    fastapi_app.dependency_overrides[get_db] = override_get_db
     yield
-    with engine.begin() as conn:
-        for table in reversed(Base.metadata.sorted_tables):
-            conn.execute(table.delete())
+    fastapi_app.dependency_overrides.clear()
 
 client = TestClient(fastapi_app)
 
 def setup_admin_headers():
-    admin_res = client.post("/api/v1/auth/register", json={
+    client.post("/api/v1/auth/register", json={
         "username": "board_admin_rules",
         "email": "rules@board.gov.in",
         "password": "AdminPassword123!",
@@ -104,6 +99,7 @@ def test_blueprint_engine_and_approval_flow():
         "board_name": "Madhya Pradesh Board of Secondary Education",
         "state": "Madhya Pradesh"
     }, headers=headers)
+    assert board_res.status_code == 200
     board_id = board_res.json()["id"]
 
     # 1. Create Examination Blueprint

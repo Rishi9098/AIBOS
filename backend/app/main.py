@@ -6,9 +6,16 @@ from app.models import (
     identity,
     question_bank,
     exam,
-    rules_and_blueprints
+    rules_and_blueprints,
+    evaluation
 )
-from app.api.v1 import auth, questions, exams, rules_and_blueprints as rules_bp_api
+from app.api.v1 import (
+    auth,
+    questions,
+    exams,
+    rules_and_blueprints as rules_bp_api,
+    evaluation as evaluation_api
+)
 
 # Create DB tables if missing
 Base.metadata.create_all(bind=engine)
@@ -33,11 +40,12 @@ app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Aut
 app.include_router(questions.router, prefix=f"{settings.API_V1_STR}/questions", tags=["Question Bank"])
 app.include_router(exams.router, prefix=f"{settings.API_V1_STR}/exams", tags=["Exam Engine"])
 app.include_router(rules_bp_api.router, prefix=f"{settings.API_V1_STR}/rules-blueprints", tags=["Rules Engine & Blueprint Engine"])
+app.include_router(evaluation_api.router, prefix=f"{settings.API_V1_STR}/evaluation", tags=["AI Evaluation Platform"])
 
 @app.get("/")
 def root_status():
     return {
         "system": "AI Board Examination Operating System (AIBOS)",
-        "version": "1.0.0-milestone3",
+        "version": "1.0.0-milestone4",
         "status": "OPERATIONAL"
     }
